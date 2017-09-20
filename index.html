@@ -1,0 +1,424 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Android Data Binding: from (null) to (data)</title>
+
+		<link rel="stylesheet" href="reveal.js/css/reveal.css">
+		<link rel="stylesheet" href="reveal.js/css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="reveal.js/lib/css/zenburn.css">
+		<link rel="stylesheet" href="reveal.js/lib/css/zenburn-nohighlight.css">
+
+		<!-- FontAwesome http://fontawesome.io/examples/ and http://fontawesome.io/icons/ -->
+		<link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
+
+		<style>
+			.reveal h1,
+			.reveal h2 {
+				text-transform: none !important;
+				font-variant-caps: small-caps !important;
+			}
+			.reveal .small-column-left {
+				float: left;
+				width: 30%;
+			}
+			.reveal .big-column-right {
+				float: left;
+				width: 58%;
+				padding-left: 5% !important;
+			}
+			.reveal .big-column-left {
+				float: left;
+				width: 68%;
+			}
+			.reveal .small-column-right {
+				float: left;
+				width: 20%;
+				padding-left: 5% !important;
+				text-align: left;
+			}
+			.reveal .left {
+				text-align: left;
+				width: 90%;
+			}
+			.reveal .join-with-previous {
+				margin-top: -0.8em;
+			}
+		</style>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal.js/css/print/pdf.css' : 'reveal.js/css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+
+				<section style="font-size: 0.8em">
+					<h1>Android Data Binding</h1>
+					<h2>from (null) to (data)</h2>
+					<p>Xavier Rubio Jansana</p>
+					<p style="font-size: 0.8em">
+						<a href="https://twitter.com/teknik_tdr"><i class="fa fa-twitter" aria-hidden="true"></i>&nbsp;@teknik_tdr</a><br>
+						<a href="https://xrubio.com"><i class="fa fa-globe" aria-hidden="true"></i>&nbsp;https://xrubio.com</a><br>
+						<a href="https://github.com/xrubioj/"><i class="fa fa-github" aria-hidden="true"></i>&nbsp;https://github.com/xrubioj/</a>
+					</p>
+				</section>
+
+				<section>
+					<h1>What?</h1>
+					<ul>
+						<li class="fragment">Standalone library (no additional dependencies)</li>
+						<li class="fragment">Compatible with API 7+ (Android 2.1) 🙃</li>
+						<li class="fragment">Announced by Google at I/O 2015</li>
+						<li class="fragment">Integrated into Android Studio &amp; Gradle</li>
+						<li class="fragment">Requires changes to the layouts... <span class="fragment">simple ones 😬</span></li>
+						<li class="fragment">...but can coexist with old methods <span class="fragment">→ progressive 🎉</span></li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>Why?</h1>
+					<ul>
+						<li class="fragment">Declarative layouts</li>
+						<li class="fragment">Minimize code to bind data to layouts</li>
+						<li class="fragment">Cleaner separation</li>
+						<li class="fragment">Allows observables (reactive)</li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>How?</h1>
+					<small class="left">In app Gradle file:</small>
+					<pre class="join-with-previous"><code class="gradle" data-trim data-noescape>
+						android {
+						    ...
+						    dataBinding {
+						        enabled = true
+						    }
+						}
+					</code></pre>
+					<div class="fragment">
+						<small class="left">...if you use Kotlin also add:</small>
+						<pre class="join-with-previous"><code class="gradle" data-trim data-noescape>
+							apply plugin: 'kotlin-kapt'
+							...
+							dependencies {
+							    ...
+							    kapt "com.android.databinding:compiler:2.3.0"
+							}
+						</code></pre>
+					</div>
+				</section>
+
+				<section>
+					<h1>Layout</h1>
+					<pre><code class="xml" data-trim data-noescape style="font-size: 0.82em">
+						&lt;?xml version="1.0" encoding="utf-8"?&gt;
+						&lt;layout xmlns:android="http://schemas.android.com/apk/res/android"
+						        xmlns:app="http://schemas.android.com/apk/res-auto"
+						        xmlns:tools="http://schemas.android.com/tools"&gt;
+
+						    &lt;data&gt;
+						        &lt;variable
+						            name="model"
+						            type="com.xrubio.databindingexample.model.PojoActivityModel"/&gt;
+						        &lt;variable ... /&gt;
+						    &lt;/data&gt;
+
+						    &lt;!-- Your regular layout here --&gt;
+
+						&lt;/layout&gt;
+					</code></pre>
+				</section>
+
+				<section>
+					<h1>Layout syntax</h1>
+					<pre><code class="xml" data-trim data-noescape>
+					    &lt;TextView
+					       <mark class="nohighlight strikethrough fragment" data-fragment-index="1" style="position: absolute"> android:id="@+id/message" </mark><mark class="nohighlight fragment" data-fragment-index="0"> android:id="@+id/message" </mark>
+					        android:text="@{model.message}"<mark class="nohighlight grayout fragment" data-fragment-index="2">
+					        tools:text="message"
+					        android:layout_width="wrap_content"
+					        android:layout_height="wrap_content"
+					        android:layout_marginBottom="16dp"
+					        android:layout_marginEnd="16dp"
+					        android:layout_marginStart="16dp"
+					        android:layout_marginTop="16dp"
+					        app:layout_constraintBottom_toBottomOf="parent"
+					        app:layout_constraintEnd_toEndOf="parent"
+					        app:layout_constraintStart_toStartOf="parent"
+					        app:layout_constraintTop_toTopOf="parent"</mark>/&gt;
+					</code></pre>
+				</section>
+
+				<section>
+					<h1>Activity</h1>
+					<pre><code class="kotlin" data-trim data-noescape style="font-size: 0.82em">
+						class PojoModelActivity : AppCompatActivity() {
+						    lateinit var binding: <mark class="fragment" data-fragment-index="1" style="position: absolute">ActivityPojoModel</mark>ActivityPojoModelBinding <mark class="nohighlight fragment" data-fragment-index="0">// activity_pojo_model</mark>
+						    lateinit var model: PojoModel
+
+						    override fun onCreate(savedInstanceState: Bundle?) {
+						        super.onCreate(savedInstanceState)
+
+						        //binding = DataBindingUtil.setContentView(
+						        //                           this, R.layout.activity_pojo_model)
+						        binding = ActivityPojoModelBinding.inflate(layoutInflater)
+
+						        model = PojoModel(message = "Hello World!")
+						        binding.model = model
+						    }
+						}
+					</code></pre>
+				</section>
+
+				<section>
+					<h1>Models</h1>
+					<ul>
+						<li class="fragment">
+							Can be as simple as a POJO or data class
+							<pre><code class="kotlin" data-trim data-noescape style="font-size: 0.85em">
+								data class PojoModel(var message: String) <span class="fragment">// var is deliberated</span>
+							</code></pre>
+						</li>
+						<li class="fragment">
+							If you try to update this model like this will not work:
+							<pre><code class="kotlin" data-trim data-noescape>
+								binding.model.message = "You will never see this"
+							</code></pre>
+						</li>
+						<li class="fragment">
+							To update we need to replace the whole model:
+							<pre><code class="kotlin" data-trim data-noescape>
+								binding.model = PojoModel("But you will see this")
+							</code></pre>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>Models</h1>
+					<ul>
+						<li class="fragment">
+							More complex like an Observable
+							<pre style="width: inherit"><code class="kotlin" data-trim data-noescape>
+								class ObservableModel() : BaseObservable() {
+								    <mark class="fragment" style="position: absolute">@get:Bindable</mark>@get:Bindable
+								    var message: String? = null
+								        set(message) {
+								            field = message
+								            <mark class="fragment" style="position: absolute">notifyPropertyChanged</mark>notifyPropertyChanged(BR.message)
+								        }
+								}
+							</code></pre>
+						</li>
+						<li class="fragment">
+							You can update individual fields:
+							<pre style="width: inherit"><code class="kotlin" data-trim data-noescape>
+								binding.model.message = "You should see this"
+							</code></pre>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>Models</h1>
+					<ul>
+						<li class="fragment">
+							Middle ground... <code>ObservableField</code>s
+							<pre style="width: inherit"><code class="kotlin" data-trim data-noescape>
+								class ObservableFieldModel() {
+
+								    val message: ObservableField&lt;String&gt; =
+								                    ObservableField()
+								    val visible: ObservableBoolean = ObservableBoolean()
+
+								    constructor(message: String) : this() {
+								        this.message.set(message)
+								    }
+								}
+							</code></pre>
+						</li>
+						<li class="fragment">
+							You can update individual fields:
+							<pre style="width: inherit"><code class="kotlin" data-trim data-noescape>
+								binding.model.message.<mark class="fragment" style="position: absolute">set</mark>set("You should see this")
+							</code></pre>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>Bindings</h1>
+					<ul>
+						<li class="fragment">Bind variables: in/out</li>
+						<li class="fragment">Bind views: access views directly</li>
+					</ul>
+					<div class="fragment">
+						<p>Examples</p>
+						<pre><code class="kotlin" data-trim data-noescape style="font-size: 0.85em">
+							var binding: ActivityPojoModelBinding
+
+							binding.model = PojoModel("Hi!") // &lt;variable ...&gt;
+							binding.text.alpha = 0.5f        // &lt;TextView android:id="@+id/text" ...&gt;
+						</code></pre>
+					</div>
+				</section>
+
+				<section>
+					<h1>Bindings</h1>
+					<ul style="font-size: 0.75em">
+						<li class="fragment">
+							Bind activity layout
+							<pre style="width: inherit"><code class="kotlin" data-trim data-noescape>
+						        val binding: ActivityPojoModelBinding =
+						                                DataBindingUtil.setContentView(
+						                                            this, R.layout.activity_pojo_model)
+						        // or...
+						        val binding: ActivityPojoModelBinding =
+						                                ActivityPojoModelBinding.inflate(layoutInflater)
+						        setContentView(binding.root)
+							</code></pre>
+						</li>
+						<li class="fragment">
+							Bind general layouts
+							<pre style="width: inherit"><code class="kotlin" data-trim data-noescape>
+								var binding: ListItemBinding =
+								           DataBindingUtil.inflate(layoutInflater, R.layout.list_item,
+								                                   viewGroup, false)
+								// or...
+								var binding: ListItemBinding = ListItemBinding.inflate(layoutInflater,
+								                                                       viewGroup, false)
+								// ...and finally retrive layout root View
+								binding.root
+							</code></pre>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>Variables</h1>
+					<ul>
+						<li class="fragment">Expressions are not simple references</li>
+						<li class="fragment">
+							For example, we can set visibility like this:
+							<pre style="width: inherit"><code data-trim data-noescape style="font-size: 0.80em">
+								android:visibility="@{model.visible ? View.VISIBLE : View.GONE}"
+								android:text='@{"This is the message: " + model.message}'
+							</code></pre>
+						</li>
+						<li class="fragment">
+							Null coalescing operator:
+							<pre style="width: inherit"><code data-trim data-noescape style="font-size: 0.80em">
+								android:text='@{model.message ?? "(no message)"}' // equivalent to Elvis operator ?:
+							</code></pre>
+						</li>
+						<li class="fragment">
+							Null pointer handling: if <code>model</code> is null
+							<pre style="width: inherit"><code data-trim data-noescape style="font-size: 0.80em">
+								android:text='@{model.message}' // no crash, evaluates to "(null)"
+								android:visibility="@{model.visible ? View.VISIBLE : View.GONE}" // false => GONE
+							</code></pre>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>Operators</h1>
+					<p style="font-size: 0.85em">Java-like expressions:</p>
+					<ul style="font-size: 0.55em">
+						<li>Mathematical <code>+ - / * %</code></li>
+						<li>String concatenation <code>+</code></li>
+						<li>Logical <code>&& ||</code></li>
+						<li>Binary <code>& | ^</code></li>
+						<li>Unary <code>+ - ! ~</code></li>
+						<li>Shift <code>>> >>> <<</code></li>
+						<li>Comparison <code>== > < >= <=</code></li>
+						<li>instanceof</li>
+						<li>Grouping <code>()</code></li>
+						<li>Literals - <code>character</code>, <code>String</code>, <code>numeric</code>, <code>null</code></li>
+						<li>Cast</li>
+						<li><mark class="fragment" style="position: absolute">Method calls</mark>Method calls</li>
+						<!-- TODO <li><mark class="fragment nohighlight highlight-green">Method calls</mark>Method calls</li> *** -->
+						<li>Field access</li>
+						<li>Array access <code>[]</code></li>
+						<li>Ternary operator <code>?:</code></li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>Event handling</h1>
+					<p class="left">Method References <span class="fragment">→ Evaluated at compile time</span></p>
+					<pre style="width: inherit"><code class="xml" data-trim data-noescape>
+						&lt;data&gt;
+						    &lt;variable name="view"
+						              type="com.xrubio.databindingexample.ui.MainActivity"/&gt;
+						&lt;/data&gt;
+						<mark class="nohighlight grayout">
+						&lt;!-- Layout ... --&gt;
+						</mark>
+						    &lt;Button
+						        android:text="Button"
+						        android:onClick="@{view::onClickButton}"/&gt;
+					</code></pre>
+					<pre style="width: inherit"><code class="kotlin" data-trim data-noescape>
+					    fun onClickButton(view: View) {
+					        // ...
+					    }
+					</code></pre>
+				</section>
+
+				<section>
+					<h1>Event handling</h1>
+					<p class="left">Listener Bindings <span class="fragment">→ Evaluated at run time</span></p>
+					<pre style="width: inherit"><code class="xml" data-trim data-noescape>
+						&lt;data&gt;
+						    &lt;variable name="view"
+						              type="com.xrubio.databindingexample.ui.MainActivity"/&gt;
+						&lt;/data&gt;
+						<mark class="nohighlight grayout">
+						&lt;!-- Layout ... --&gt;
+						</mark>
+						    &lt;Button
+						        android:text="Button"
+						        android:onClick="@{view::onClickButton}"/&gt;
+					</code></pre>
+					<pre style="width: inherit"><code class="kotlin" data-trim data-noescape>
+					    fun onClickButton(view: View) {
+					        // ...
+					    }
+					</code></pre>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="reveal.js/lib/js/head.min.js"></script>
+		<script src="reveal.js/js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'reveal.js/plugin/markdown/marked.js' },
+					{ src: 'reveal.js/plugin/markdown/markdown.js' },
+					{ src: 'reveal.js/plugin/notes/notes.js', async: true },
+					{ src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
