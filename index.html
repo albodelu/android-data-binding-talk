@@ -171,9 +171,8 @@
 						    override fun onCreate(savedInstanceState: Bundle?) {
 						        super.onCreate(savedInstanceState)
 
-						        //binding = DataBindingUtil.setContentView(
-						        //                           this, R.layout.activity_pojo_model)
-						        binding = ActivityPojoModelBinding.inflate(layoutInflater)
+						        binding = DataBindingUtil.setContentView(
+						                                   this, R.layout.activity_pojo_model)
 
 						        model = PojoModel(message = "Hello World!")
 						        binding.model = model
@@ -184,15 +183,19 @@
 
 				<section>
 					<h1>Models</h1>
+				</section>
+
+				<section>
+					<h1>Models</h1>
 					<ul>
 						<li class="fragment">
 							Can be as simple as a POJO or data class
 							<pre><code class="kotlin" data-trim data-noescape style="font-size: 0.85em">
-								data class PojoModel(var message: String) <span class="fragment">// var is deliberated</span>
+								data class PojoModel(var message: String)
 							</code></pre>
 						</li>
 						<li class="fragment">
-							If you try to update this model like this will not work:
+							If you try to update this model UI will not update:
 							<pre><code class="kotlin" data-trim data-noescape>
 								binding.model.message = "You will never see this"
 							</code></pre>
@@ -256,6 +259,10 @@
 							</code></pre>
 						</li>
 					</ul>
+				</section>
+
+				<section>
+					<h1>Bindings</h1>
 				</section>
 
 				<section>
@@ -349,11 +356,103 @@
 						<li>Literals - <code>character</code>, <code>String</code>, <code>numeric</code>, <code>null</code></li>
 						<li>Cast</li>
 						<li><mark class="fragment" style="position: absolute">Method calls</mark>Method calls</li>
-						<!-- TODO <li><mark class="fragment nohighlight highlight-green">Method calls</mark>Method calls</li> *** -->
 						<li>Field access</li>
-						<li>Array access <code>[]</code></li>
+						<li>
+							Array access <code>[]</code>
+							<span class="fragment"> → Collections
+							<code class="xml" style="border: 1px white solid">android:text="@{list[index]}"</code></span>
+						</li>
 						<li>Ternary operator <code>?:</code></li>
 					</ul>
+				</section>
+
+				<section>
+					<h1>String literals</h1>
+					<pre><code class="xml" data-trim data-noescape>
+						android:text='@{map["firstName"]}'
+						android:text="@{map[`firstName`}"
+						android:text="@{map['firstName']}"
+					</code></pre>
+				</section>
+
+				<section>
+					<h1>Two way bindings<br>and conversions</h1>
+				</section>
+
+				<section>
+					<h1>Two way bindings</h1>
+					<p class="fragment">Allows the binding to update the model</p>
+					<ul>
+						<li class="fragment">
+							For example:
+							<pre style="width: inherit"><code class="xml" data-trim data-noescape>
+							    &lt;EditText android:text="@<mark class="fragment" style="position: absolute">=</mark>={model.value}"/&gt;
+							</code></pre>
+						</li>
+						<li class="fragment">Needs a setter on the POJO/data class or Observable Model</li>
+						<li class="fragment">⚠️ ObservableField doesn't work here <br>(weird compilation error 🤷‍ )</li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>Conversions</h1>
+					<p class="left">Allows the binding to convert and format data</p>
+					<pre class="fragment" style="width: inherit"><code class="xml" data-trim data-noescape>
+						&lt;data&gt;
+						    &lt;variable name="model"
+						              type="com.xrubio.databindingexample.model.TwoWayDataBindingConversionModel"/&gt;
+						&lt;/data&gt;
+						<mark class="nohighlight grayout">
+						&lt;!-- Layout ... --&gt;
+						</mark>
+						&lt;EditText
+						    android:text="@={<mark class="fragment" style="position: absolute">``</mark>`` + model.value}"/&gt;
+					</code></pre>
+					<p class="left fragment">Simplified conversion ("hackish") 😬</p>
+				</section>
+
+				<section>
+					<h1>Conversions</h1>
+					<pre class="fragment"><code class="xml" data-trim data-noescape style="font-size: 0.6em; line-height: 1.2em;">
+						&lt;data&gt;
+						    &lt;import type="com.xrubio.databindingexample.converters.IntConverter"/&gt;
+						    &lt;variable name="model"
+						              type="com.xrubio.databindingexample.model.TwoWayDataBindingConversionModel"/&gt;
+						&lt;/data&gt;
+						<mark class="nohighlight grayout">
+						&lt;!-- Layout ... --&gt;
+						</mark>
+						&lt;EditText
+						    android:text="@={<mark class="fragment" style="position: absolute">IntConverter.INSTANCE.toString</mark>IntConverter.INSTANCE.toString(model.value)}"/&gt;
+					</code></pre>
+					<div class="fragment">
+						<small class="left">Using converters functions</small>
+						<pre class="join-with-previous"><code class="kotlin" data-trim data-noescape
+															style="font-size: 0.6em; line-height: 1.2em;">
+							object IntConverter {
+
+							    <mark class="fragment" style="position: absolute">@InverseMethod("toInt")</mark>@InverseMethod("toInt")
+							    fun toString(value: Int): String {
+							        return if (value >= 0)
+							            value.toString()
+							        else
+							            ""
+							    }
+
+							    fun toInt(value: String): Int {
+							        return try {
+							            Integer.parseInt(value)
+							        } catch (e: NumberFormatException) {
+							            -1
+							        }
+							    }
+							}
+						</code></pre>
+					</div>
+				</section>
+
+				<section>
+					<h1>Event handling</h1>
 				</section>
 
 				<section>
@@ -367,15 +466,18 @@
 						<mark class="nohighlight grayout">
 						&lt;!-- Layout ... --&gt;
 						</mark>
-						    &lt;Button
-						        android:text="Button"
-						        android:onClick="@{view::onClickButton}"/&gt;
+						&lt;Button
+						    android:text="Button"
+						    android:onClick="@{view::onClickButton}"/&gt;
 					</code></pre>
 					<pre style="width: inherit"><code class="kotlin" data-trim data-noescape>
 					    fun onClickButton(view: View) {
 					        // ...
 					    }
 					</code></pre>
+					<aside class="notes" data-markdown>
+						- Method marked as **used** by the IDE
+					</aside>
 				</section>
 
 				<section>
@@ -385,20 +487,105 @@
 						&lt;data&gt;
 						    &lt;variable name="view"
 						              type="com.xrubio.databindingexample.ui.MainActivity"/&gt;
+						    &lt;variable name="data"
+						              type="com.xrubio.databindingexample.ui.ItemData"/&gt;
 						&lt;/data&gt;
 						<mark class="nohighlight grayout">
 						&lt;!-- Layout ... --&gt;
 						</mark>
-						    &lt;Button
-						        android:text="Button"
-						        android:onClick="@{view::onClickButton}"/&gt;
+						&lt;Button
+						    android:text="Button"
+						    android:onClick="@{(btn) -> view.onClickButton(btn, data)}"/&gt;
 					</code></pre>
 					<pre style="width: inherit"><code class="kotlin" data-trim data-noescape>
-					    fun onClickButton(view: View) {
+					    fun <mark class="nohighlight grayout">onClickButton</mark>(btn: View, data: ItemData) {
 					        // ...
 					    }
 					</code></pre>
+					<aside class="notes" data-markdown>
+						- Method marked as **unused** by the IDE
+						- `btn` parameter is a `View`
+					</aside>
 				</section>
+
+				<section>
+					<h1>Caveats</h1>
+				</section>
+
+				<section>
+					<h1>Caveats</h1>
+					<p>Creation of the layout</p>
+					<img src="img/caveats-new-binding.png" alt="New binding not found">
+					<p class="fragment">
+						Doesn't find new binding on first usage 🕵️<br>
+						<span class="fragment">→ Build→Clean Project</span>
+					</p>
+				</section>
+
+				<section>
+					<h1>Caveats</h1>
+					<p>Annotation processor errors and kapt</p>
+					<img src="img/caveats-kapt-messages.png" alt="Messages don't give information">
+					<p class="fragment">Not very useful 🤷‍ <span class="fragment">→ Check Gradle Console</span></p>
+				</section>
+
+				<section>
+					<h1>Caveats</h1>
+					<p>Error messages in Gradle Console lines are off-by-1</p>
+					<pre class="fragment"><small class="left" style="color: red">e: java.lang.IllegalStateException: failed to analyze: java.lang.RuntimeException: Found data binding errors.
+****/ data binding error ****msg:Cannot resolve type for IntConverter file:/Users/teknik/Documents/source/
+_talks/android-data-binding-talk/databinding-example/app/src/main/res/layout/
+activity_two_way_binding_conversion_converter.xml loc:<mark class="fragment" style="position: absolute">46:29</mark>46:29 - 46:62 ****\ data binding error ****
+					</small></pre>
+					<small class="fragment">It is really line 47, column 30 🤔</small>
+				</section>
+
+				<section>
+					<h1>References</h1>
+					<ul>
+						<li>
+							Google's Data Binding Library
+							<a href="https://developer.android.com/topic/libraries/data-binding/index.html">
+							https://developer.android.com/topic/libraries/data-binding/index.html</a>
+						</li>
+						<li>
+							George Mount Medium articles
+							<a href="https://medium.com/@georgemount007">https://medium.com/@georgemount007</a>
+						</li>
+						<li>
+							Android Data Binding In Practice
+							<a href="https://truveris.github.io/articles/android-advanced-data-binding/">
+							https://truveris.github.io/articles/android-advanced-data-binding/</a>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h1>Questions? 🤔</h1>
+				</section>
+
+				<section>
+					<h1>Thanks! 🎉</h1>
+					<p>Xavier Rubio Jansana</p>
+					<p style="font-size: 0.8em">
+						<a href="https://twitter.com/teknik_tdr"><i class="fa fa-twitter" aria-hidden="true"></i>&nbsp;@teknik_tdr</a><br>
+						<a href="https://xrubio.com"><i class="fa fa-globe" aria-hidden="true"></i>&nbsp;https://xrubio.com</a><br>
+						<a href="https://github.com/xrubioj/"><i class="fa fa-github" aria-hidden="true"></i>&nbsp;https://github.com/xrubioj/</a>
+					</p>
+				</section>
+
+				<!--
+				Dynamic Variables
+				Attribute Setters
+				Performance of updating an object:
+				- does update all the fields unconditionally?
+				- just the fields that have changed?
+				- strategies
+				Check performance:
+				- plain old findViewById()
+				- ButterKnife
+				- Data Binding
+				-->
 
 			</div>
 		</div>
