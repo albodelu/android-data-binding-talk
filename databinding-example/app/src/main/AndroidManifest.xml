@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.xrubio.databindingexample">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.PojoModelActivity"
+            android:label="@string/pojo_model_activity_label"/>
+
+        <activity
+            android:name=".ui.ObservableModelActivity"
+            android:label="@string/observable_model_activity_label"/>
+
+        <activity
+            android:name=".ui.ObservableFieldModelActivity"
+            android:label="@string/observable_field_model_activity_label"/>
+
+        <activity
+            android:name=".ui.TwoWayBindingVanillaActivity"
+            android:label="@string/two_way_binding_vanilla_activity_label"/>
+
+        <activity
+            android:name=".ui.TwoWayBindingConversionActivity"
+            android:label="@string/two_way_binding_conversion_activity_label"/>
+
+        <activity
+            android:name=".ui.TwoWayBindingConversionConverterActivity"
+            android:label="@string/two_way_binding_conversion_converter_activity_label"/>
+    </application>
+
+</manifest>

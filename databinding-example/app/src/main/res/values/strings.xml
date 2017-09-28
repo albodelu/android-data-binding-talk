@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Data Binding Example</string>
+    <string name="pojo_model_activity_label">Pojo Model</string>
+    <string name="observable_model_activity_label">Observable Model</string>
+    <string name="observable_field_model_activity_label">Observable Field Model</string>
+    <string name="two_way_binding_vanilla_activity_label">Two Way Binding (Vanilla)</string>
+    <string name="two_way_binding_conversion_activity_label">Two Way Binding (Simple Conversion)</string>
+    <string name="two_way_binding_conversion_converter_activity_label">Two Way Binding (Converter)</string>
+
+    <string name="bad_number">Invalid value</string>
+</resources>
